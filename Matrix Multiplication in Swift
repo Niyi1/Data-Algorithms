@@ -1,0 +1,32 @@
+import Foundation
+let start = CFAbsoluteTimeGetCurrent()
+var MatA: [[Int]] = []
+var MatB: [[Int]] = []
+var rank = 3
+for  i in 1...rank{
+    MatA = [[Int]]( repeating: [Int](repeating: 10, count: i), count: i)
+    MatB = [[Int]]( repeating: [Int](repeating: 10, count: i), count: i)
+}
+// Makes all the elements of Matrices A and B 10 to make the result predictable
+func MatMult(Mat1: [[Int]], Mat2: [[Int]]) -> [[Int]] {
+    if Mat1[0].count == Mat2.count {
+        let size = Mat1.count
+        var Result:[[Int]] = [[Int]](  repeating: [Int](repeating: 0, count: size), count: size)
+        for i in 0..<Result.count {
+            for j in 0..<Mat1.count {
+                for k in 0..<Mat2.count {
+                    Result[i][j] += Mat1[i][k] * Mat2[k][j]
+                }
+            }
+        }
+        return Result
+    }
+    else {
+        return [[]]
+    }
+}
+
+print(MatMult(Mat1: MatA, Mat2: MatB))
+// run your work
+let diff = CFAbsoluteTimeGetCurrent() - start
+print("Took \(diff) seconds")
