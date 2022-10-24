@@ -2,8 +2,8 @@ import Foundation
 let InitialTime = CFAbsoluteTimeGetCurrent()
 var MatA: [[Double]] = []
 var MatB: [[Double]] = []
-var range = 3 // Placeholder variable for size of test Matrix
-var TestElement = Double() // Placeholder variable for elements of test Matrix
+var range = 3  // Placeholder variable for size of test Matrix
+var TestElement = Double()  // Placeholder variable for elements of test Matrix
 MatA = [[Double]]( repeating: [Double](repeating: TestElement, count: range), count: range)
 MatB = [[Double]]( repeating: [Double](repeating: TestElement, count: range), count: range)
 func MatMult<T: Numeric>(Mat1: [[T]], Mat2: [[T]]) -> [[T]] {
