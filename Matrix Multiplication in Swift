@@ -25,3 +25,4 @@ func MatMult<T: Numeric>(Mat1: [[T]], Mat2: [[T]]) -> [[T]] {
 }
 let TimeTaken = CFAbsoluteTimeGetCurrent() - InitialTime
 print("Took \(TimeTaken) seconds")
+ 
