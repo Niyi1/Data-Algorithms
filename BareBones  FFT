@@ -1,0 +1,55 @@
+using Plots
+function swap(a, b) 
+    temp = a
+    a = b
+    b = temp
+end
+
+
+function FFTransform(InputArray, NumOfImagElem, ImagSign)
+
+    n = NumOfImagElem << 1
+    j = 1
+    for i in 1:2:n-1
+        if j > i
+            swap(InputArray[j], InputArray[i])
+            swap(InputArray[j+1], InputArray[i+1])
+        end
+        m = NumOfImagElem
+        while m >= 2 && j > m
+            j -= m
+            m >>= 1
+        end
+        j +=m
+    end 
+    mmax = 2
+    while n > mmax
+        istep = mmax << 1
+        theta = ImagSign * (6.28318530717959/mmax)
+        wtemp = sin(0.5*theta)
+        wpr = -2.0*wtemp*wtemp
+        wpi = sin(theta)
+        wi = 0.0
+        wr = 1.0
+        for m in 1:2:mmax-1
+            for i in m:istep:n
+                j = i +mmax
+                tempr = (wr*InputArray[j]) - (wi*InputArray[j+1])
+                tempi = (wr*InputArray[j+1]) + (wi*InputArray[j])
+                InputArray[j] = InputArray[i] -tempr
+                InputArray[j+1] = InputArray[i+1] -tempi
+                InputArray[i] += tempr
+                InputArray[i+1] += tempi
+            end
+            wr= (wtemp=wr) * wpr - wi*wpi+wr
+            wi = wi*wpr+wtemp*wpi+wi
+        end
+         mmax = istep   
+    end  
+    return InputArray
+end
+
+TestArray = rand(Float16, 4096)
+
+TestArrayFFT = FFTransform(TestArray, 2048, 1) 
+p1 = plot(TestArrayFFT)
