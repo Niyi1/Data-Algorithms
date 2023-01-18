@@ -1,0 +1,91 @@
+using Plots
+using LinearAlgebra
+function conjugate(A) 
+  return map(conj, A)
+end
+function adj(A) 
+  return transpose(conjugate(A))
+end
+function creator(size)
+  creator = fill(0.0+0im, (size, size))
+  for i in range(2, size)
+    creator[i-1, i] = complex(sqrt(i-1))
+  end
+  return creator
+end
+function annihilator(size)
+  annihilator = fill(0.0+0im, (size, size))
+  for i in range(2, size)
+    annihilator[i, i-1] = complex(sqrt(i-1))
+  end
+  return annihilator
+end
+function BasisStates(size)
+  basis = fill(0+0im, (size, size))
+  for i in range(1, size)
+    basis[i, i] = 1+0im
+  end
+  return basis
+end
+function DensityMatrix(BasisStates)
+  MatSize = size(BasisStates, 1)
+  DensityMat = fill(0.0+0im, (MatSize, MatSize))
+  prob = 1/MatSize
+  for i in range(1, MatSize)
+    DensityMat += prob*BasisStates[i, :]*adj(BasisStates[i, :])
+  end
+  return DensityMat
+end
+function q_function(rho, amp, creatr, annihilater) 
+  displace= exp(amp*creatr-conj(amp)*annihilater)# Displacement operator = exp(amplitude*creator operator- complex conjugate of amplitude*annihilator operator)
+  q = real(tr(rho*displace))# Q-function = trace(density operator*displacement operator)
+  return q
+end
+function Hamiltonian(Mom, Pos, Tim)
+  return 0.5* (Pos^2) + 0.25*(bet^2)* (Mom^4)-0.5*(Mom^2)+ (g/bet)*cos(Tim)*Mom +0.0625*(Mom*Pos +Pos*Mom)
+end
+HBar = 35
+function MasterEquation(Mom, Pos, Dens, Lindblad, Tim)
+  Hamil = Hamiltonian(Mom, Pos, Tim)
+  return -1im/HBar *(Hamil*Dens-Dens*Hamil) + 0.5*((Lindblad*Dens*adj(Lindblad)-Dens*adj(Lindblad)*Lindblad)+(Lindblad*Dens*adj(Lindblad)-adj(Lindblad)*Lindblad*Dens))
+end
+g = 0.1
+bet = 0.3
+function ODESolver(QDim)
+  creat = creator(QDim)
+  annihilate = annihilator(QDim)
+  Lindblad = sqrt(0.25)*creat
+  Dens0 = DensityMatrix(BasisStates(QDim))
+  Mom = (complex(0, 1) /sqrt(2)) * creat-annihilate
+  Pos = (1/sqrt(2)) * creat+annihilate
+  h = 0.01 #step size
+  t = 0.0 #Initial time
+  n = 100 # Number of steps
+  y = [Dens0]# Array to store solution
+  # The trapezoidal rule
+  for i in 1:n
+    tim = t + i * h
+    Dens_prev = y[i]
+    FirstIter = MasterEquation(Mom, Pos, Dens_prev, Lindblad, tim)
+    SecondIter = MasterEquation(Mom, Pos, Dens_prev + h*FirstIter, Lindblad, tim+h)
+    Dens_current = Dens_prev + 0.5*h*(FirstIter + SecondIter)
+    push!(y, Dens_current)
+  end
+  return y
+end
+
+LindForm = ODESolver(50)
+@time ODESolver(50)# benchmarking
+z = real(LindForm[100])
+println(tr(z))#checking trace
+#compute q-function
+qfunc = []
+for j in range(1, length(LindForm))
+  append!(qfunc, real(q_function(LindForm[j], 1+1im, creator(50), annihilator(50))))
+end
+plot(qfunc)#plot q-function
+#plot(z, st=:heatmap)# Create a heatmap
+
+# @gif for i in 1:100
+#   plot(real(ODESolver(40)[i]), st=:heatmap)
+# end # Animate heatmap
