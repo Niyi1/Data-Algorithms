@@ -1,0 +1,38 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+def FFT(x):
+    N = len(x)
+    if N == 1:
+        return x
+    else:
+        EvenPart = FFT(x[::2])
+        OddPart = FFT(x[1::2])
+        factor = np.exp(-2j*np.pi*np.arange(N)/ N)
+        TSignal = np.concatenate(\
+                [EvenPart+factor[:int(N/2)]*OddPart,
+                EvenPart+factor[int(N/2):]*OddPart])
+        return TSignal    # FFT Function
+
+def DFT(x):
+    N = len(x)
+    n = np.arange(N)
+    k = n.reshape((N, 1))
+    Transform = np.exp(-2j * np.pi * k * n / N)
+    TSignal = np.dot(Transform, x)
+    return TSignal     #DFT Function
+
+SampleRate = 128
+TimeInterval = 1.0/SampleRate
+Time = np.arange(0,1,TimeInterval)
+Signal = 3*np.sin(2*np.pi*Time)+ np.sin(2*np.pi*4*Time)+ 0.5* np.sin(2*np.pi*7*Time)#To create a signal
+
+TransformedSignal= DFT(Signal)
+
+N = len(TransformedSignal)
+n = np.arange(N)
+T = N/SampleRate
+freq = n/T
+plt.plot(freq, abs(TransformedSignal))
+plt.xlabel("Freq (Hz)")
+plt.show()
