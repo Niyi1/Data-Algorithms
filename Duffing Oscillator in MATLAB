@@ -1,0 +1,26 @@
+%solving x''+ delta*x'+alpha*x+beta*x^3= Gamma*cos(Omega*t)
+delta=0.1;%controls the amount of damping
+alpha=1;%controls the linear stiffness
+beta=0.25;%controls the amount of non-linearity in the restoring force
+omega=2;%is the amplitude of the periodic driving force
+Gamma=2;%is the angular frequency of the periodic driving force
+duffeq =@(t,x) [-delta*x(1)+alpha*x(2)-beta*x(2)^3+Gamma*cos(omega*t), x(1)]';
+[t, x]=ode45(duffeq,0:2*pi/omega/100:4000,[0 1]);
+
+figure(1)
+plot(t(2000:6000),x(2000:6000,1),'r')
+axis tight
+title('time series')
+figure(2)
+plot(x(2000:10000,2),x(2000:10000,1),'b')
+axis tight
+title('phase space')
+figure(3)
+for i=5000:100:127300
+    n=(i-4900)/100;
+    x1(n)=x(i,2);
+    x2(n)=x(i,1);
+end
+plot(x1(:),x2(:),'r.')
+axis tight
+title('Poincaré section')
