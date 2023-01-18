@@ -1,0 +1,59 @@
+using  LinearAlgebra
+function swap_row(Mat, i, j)
+    N = length(Mat)
+    M = length(Mat[1])
+    for k in range(1, M)
+        temp = Mat[i][k]
+        Mat[i][k] = Mat[j][k]
+        Mat[j][k] = temp
+    end
+end
+
+function GaussElim(Mat, Vect)
+    MatA = zeros(Float16, 3, 3)
+    for i in 1:length(MatC)
+        for j in 1: length(MatC[i])
+            MatA[i, j] = MatC[i][j]
+        end
+    end
+    if det(MatA) == 0 #Checks if matrix is invertible
+        return "Matrix is not invertible"
+    end
+    for i in range(1, length(Mat))
+        # Pivot Selection
+        if Mat[i][i] != 0
+            pivot = Mat[i][i]
+        else
+            for j in range(i, length(Mat))
+                if Mat[j][i] != 0
+                    pivot = Mat[j][i]
+                    swap_row(Mat, i, j)
+                end
+            end
+        end
+        #Column Elimination
+        for j in range(i+1, length(Mat))
+            TempVect = (Vect[i] / pivot) * Mat[j][i]
+            Temp = (Mat[i] / pivot) * Mat[j][i]
+            Vect[j] = Vect[j] - TempVect 
+            Mat[j] = Mat[j] - Temp
+        end
+        Mat[i] /= pivot
+        Vect[i] /= pivot
+    end
+    #Jordan Back-substitution
+    for k in length(Mat)-1:-1:1
+        for j in length(Mat[1]):-1:k+1
+            Vect[k] = Vect[k]- Mat[k][j]*Vect[j]
+            Mat[k][j] = Mat[k][j]- Mat[k][j]*Mat[j][j]
+        end
+        
+    end
+    return   Mat, Vect
+end 
+
+MatC = [[4.0, 3.0, -5.0], [-2.0, -4.0, 5.0], [8.0, 8.0, 0.0]]#Sample equation
+VectorC = [2.0, 5.0, -3.0]
+
+RowReducedForm, Solution =GaussElim(MatC, VectorC) 
+
